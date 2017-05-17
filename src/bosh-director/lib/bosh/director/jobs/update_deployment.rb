@@ -56,17 +56,7 @@ module Bosh::Director
         parent_id = add_event
         is_deploy_action = @options['deploy']
 
-        tmp_event_log = @event_log.begin_stage("NORTH POLE: Trying to get lock for deployment #{@deployment_name}", 1)
-        tmp_event_log.advance_and_track('NORTH POLE: stage ') do
-          puts 'hello from the north pole'
-        end
-
         with_deployment_lock(@deployment_name) do
-          tmp_2_event_log = @event_log.begin_stage("SOUTH POLE: Got lock for deployment #{@deployment_name}", 1)
-          tmp_2_event_log.advance_and_track('SOUTH POLE: stage ') do
-            puts 'hello from the south pole'
-          end
-
           deployment_plan = nil
 
           if is_deploy_action
@@ -78,13 +68,52 @@ module Bosh::Director
           @notifier = DeploymentPlan::Notifier.new(@deployment_name, Config.nats_rpc, logger)
           @notifier.send_start_event unless dry_run?
 
+          tmp_event_log = @event_log.begin_stage("NORTH POLE1: Trying to get lock for deployment #{@deployment_name}", 1)
+          tmp_event_log.advance_and_track('NORTH POLE1: stage ') do
+            puts 'hello from the north pole'
+          end
+
           event_log_stage = @event_log.begin_stage('Preparing deployment', 1)
           event_log_stage.advance_and_track('Preparing deployment') do
+            tmp_event_log = @event_log.begin_stage("NORTH POLE2: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE2: stage ') do
+              puts 'hello from the north pole'
+            end
+
             planner_factory = DeploymentPlan::PlannerFactory.create(logger)
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE3: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE3: stage ') do
+              puts 'hello from the north pole'
+            end
+
             deployment_plan = planner_factory.create_from_manifest(deployment_manifest_object, cloud_config_model, runtime_config_models, @options)
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE4: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE4: stage ') do
+              puts 'hello from the north pole'
+            end
+
             deployment_assembler = DeploymentPlan::Assembler.create(deployment_plan)
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE5: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE5: stage ') do
+              puts 'hello from the north pole'
+            end
+
             generate_variables_values(deployment_plan.variables, @deployment_name) if is_deploy_action
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE6: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE6: stage ') do
+              puts 'hello from the north pole'
+            end
+
             deployment_assembler.bind_models
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE7: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE7: stage ') do
+              puts 'hello from the north pole'
+            end
           end
 
           if deployment_plan.instance_models.any?(&:ignore)
@@ -94,8 +123,18 @@ module Bosh::Director
           next_releases, next_stemcells = get_stemcells_and_releases
           context = event_context(next_releases, previous_releases, next_stemcells, previous_stemcells)
 
+          tmp_event_log = @event_log.begin_stage("NORTH POLE8: Trying to get lock for deployment #{@deployment_name}", 1)
+          tmp_event_log.advance_and_track('NORTH POLE8: stage ') do
+            puts 'hello from the north pole'
+          end
+
           begin
             current_variable_set = deployment_plan.model.current_variable_set
+
+            tmp_event_log = @event_log.begin_stage("NORTH POLE9: Trying to get lock for deployment #{@deployment_name}", 1)
+            tmp_event_log.advance_and_track('NORTH POLE9: stage ') do
+              puts 'hello from the north pole'
+            end
 
             if is_deploy_action
               update_instance_groups_variable_set(deployment_plan.instance_groups, current_variable_set)
@@ -106,9 +145,24 @@ module Bosh::Director
             if dry_run?
               return "/deployments/#{deployment_plan.name}"
             else
+              tmp_event_log = @event_log.begin_stage("NORTH POLE10: Trying to get lock for deployment #{@deployment_name}", 1)
+              tmp_event_log.advance_and_track('NORTH POLE10: stage ') do
+                puts 'hello from the north pole'
+              end
+
               compilation_step(deployment_plan).perform
 
+              tmp_event_log = @event_log.begin_stage("NORTH POLE11: Trying to get lock for deployment #{@deployment_name}", 1)
+              tmp_event_log.advance_and_track('NORTH POLE11: stage ') do
+                puts 'hello from the north pole'
+              end
+
               update_step(deployment_plan).perform
+
+              tmp_event_log = @event_log.begin_stage("NORTH POLE12: Trying to get lock for deployment #{@deployment_name}", 1)
+              tmp_event_log.advance_and_track('NORTH POLE12: stage ') do
+                puts 'hello from the north pole'
+              end
 
               if check_for_changes(deployment_plan)
                 PostDeploymentScriptRunner.run_post_deploys_after_deployment(deployment_plan)
@@ -120,7 +174,18 @@ module Bosh::Director
                 remove_unused_variable_sets(deployment_plan.model, deployment_plan.instance_groups)
               end
 
+              tmp_event_log = @event_log.begin_stage("NORTH POLE13: Trying to get lock for deployment #{@deployment_name}", 1)
+              tmp_event_log.advance_and_track('NORTH POLE13: stage ') do
+                puts 'hello from the north pole'
+              end
+
               @notifier.send_end_event
+
+              tmp_event_log = @event_log.begin_stage("NORTH POLE14: Trying to get lock for deployment #{@deployment_name}", 1)
+              tmp_event_log.advance_and_track('NORTH POLE14: stage ') do
+                puts 'hello from the north pole'
+              end
+
               logger.info('Finished updating deployment')
               add_event(context, parent_id)
 
