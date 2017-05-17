@@ -56,9 +56,17 @@ module Bosh::Director
         parent_id = add_event
         is_deploy_action = @options['deploy']
 
-        logger.debug("NORTH POLE: Trying to get lock for deployment #{@deployment_name}")
+        tmp_event_log = @event_log.begin_stage("NORTH POLE: Trying to get lock for deployment #{@deployment_name}", 1)
+        tmp_event_log.advance_and_track('NORTH POLE: stage ') do
+          puts 'hello from the north pole'
+        end
+
         with_deployment_lock(@deployment_name) do
-          logger.debug("SOUTH POLE: Successful in getting lock for deployment #{@deployment_name}")
+          tmp_2_event_log = @event_log.begin_stage("SOUTH POLE: Got lock for deployment #{@deployment_name}", 1)
+          tmp_2_event_log.advance_and_track('SOUTH POLE: stage ') do
+            puts 'hello from the south pole'
+          end
+
           deployment_plan = nil
 
           if is_deploy_action
